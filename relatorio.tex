@@ -1,0 +1,275 @@
+
+\documentclass[12pt]{article}
+\usepackage{listings}
+\usepackage[margin=1in]{geometry} 
+\usepackage[pdftex]{hyperref}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{minted}
+\usepackage{cleveref}
+
+\newfloat{codelisting}{htbp}{lop}
+\floatname{codelisting}{Listagem}
+\Crefname{codelisting}{Listagem}{Listagens}
+ 
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+ 
+\newenvironment{theorem}[2][Theorem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{lemma}[2][Lemma]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{exercise}[2][Exercise]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{problem}[2][Problem]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{question}[2][Question]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+\newenvironment{corollary}[2][Corollary]{\begin{trivlist}
+\item[\hskip \labelsep {\bfseries #1}\hskip \labelsep {\bfseries #2.}]}{\end{trivlist}}
+
+
+\newenvironment{solution}{\begin{proof}[Solution]}{\end{proof}}
+
+
+
+ 
+\begin{document}
+ 
+% --------------------------------------------------------------
+%                         Start here
+% --------------------------------------------------------------
+ 
+\title{Trabalho Métodos Númerico}
+\author{Antonio Pedro - 555650 \\ Hubert Miranda - 552798}
+
+\maketitle
+\section*{Primeira parte:} 
+Primeiramente, precisamos colocar todas as variáveis de escoamento em função de uma só variável. Por questões de praticidade, vamos escolher Q7 para essa função, sabendo que a queda de pressão pode ser obtida pela seguinte equação:
+\[ \Delta P = k Q^2 \]
+onde $k = \frac{16}{\pi^{2}} \cdot \frac{f \cdot L \cdot \rho}{2D^{5}}$. Como $f, L, \rho, D$ são dados e $Q_1 = 1 \text{m}^3/\text{s}$.
+
+Vamos resolver esse sistema utilizando princípios de circuitos elétricos e as leis de Kirchhoff. Utilizando as leis de nós, vamos obter as seguintes equações:
+\begin{align}
+Q_1 &= Q_2 + Q_3 \label{eq:no_1} \\
+Q_3 &= Q_4 + Q_5 \label{eq:no_2} \\
+Q_5 &= Q_6 + Q_7 \label{eq:no_3}
+\end{align}
+
+Agora, utilizando a lei de malhas, levando em consideração que, como foi explicitado no comando da questão, a queda de pressão nas 3 últimas malhas deve resultar em zero e simplificando as constantes $C = \frac{16f\rho}{2\pi^2 D^5}$ (comuns a todas as quedas de pressão mencionadas, de forma que $k_i = C L_i$), vamos obter as seguintes equações (assumindo a interpretação de que o fluxo $Q_8$ no tubo $L_8$ é $Q_8 = Q_6+Q_7 = Q_5$, e o fluxo $Q_9$ no tubo $L_9$ é $Q_9 = Q_4+Q_8 = Q_3$):
+\begin{align}
+L_3 Q_3^2 + L_4 Q_4^2 + L_9 Q_9^2 - L_2 Q_2^2 &= 0 \quad \text{Com } L_3=2, L_4=4, L_9=2, L_2=4 \text{ e } Q_9=Q_3 \nonumber \\
+(2+2)Q_3^2 + 4Q_4^2 - 4Q_2^2 &= 0 \implies Q_3^2 + Q_4^2 - Q_2^2 = 0 \quad &(\text{Malha 1}) \label{eq:malha_1} \\
+L_5 Q_5^2 + L_6 Q_6^2 + L_8 Q_8^2 - L_4 Q_4^2 &= 0 \quad \text{Com } L_5=2, L_6=4, L_8=2, L_4=4 \text{ e } Q_8=Q_5 \nonumber \\
+(2+2)Q_5^2 + 4Q_6^2 - 4Q_4^2 &= 0 \implies Q_5^2 + Q_6^2 - Q_4^2 = 0 \quad &(\text{Malha 2}) \label{eq:malha_2} \\
+L_6 Q_6^2 - L_7 Q_7^2 &= 0 \quad \text{Com } L_6=4, L_7=8 \quad &(\text{Malha 3}) \label{eq:malha_3}
+\end{align}
+
+\textbf{Resolvendo a terceira malha para Q6 em função de Q7:}
+\begin{align*}
+4 Q_6^2 &= 8 Q_7^2 \\
+Q_6^2 &= 2 Q_7^2 \\
+Q_6 &= \sqrt{2} Q_7
+\end{align*}
+
+\textbf{Resolvendo o nó de Q5 para Q5 em função de Q7:}
+
+Usando a Equação \eqref{eq:no_3}: $Q_5 = Q_6 + Q_7$
+\[ Q_5 = \sqrt{2} Q_7 + Q_7 \]
+\[ Q_5 = (1+\sqrt{2}) Q_7 \]
+
+\textbf{Resolvendo a segunda malha para Q4 em função de Q7:}
+
+Usando a Equação \eqref{eq:malha_2}: $Q_4^2 = Q_5^2 + Q_6^2$
+\[ Q_4^2 = ((1+\sqrt{2})Q_7)^2 + (\sqrt{2}Q_7)^2 \]
+\[ Q_4^2 = (1 + 2\sqrt{2} + 2)Q_7^2 + 2Q_7^2 \]
+\[ Q_4^2 = (3 + 2\sqrt{2} + 2)Q_7^2 \]
+\[ Q_4^2 = (5+2\sqrt{2})Q_7^2 \]
+\[ Q_4 = \sqrt{5+2\sqrt{2}} Q_7 \]
+
+\textbf{Resolvendo o nó de Q3 para Q3 em função de Q7:}
+
+Usando a Equação \eqref{eq:no_2}: $Q_3 = Q_4 + Q_5$
+\[ Q_3 = \sqrt{5+2\sqrt{2}}Q_7 + (1+\sqrt{2})Q_7 \]
+\[ Q_3 = (\sqrt{5+2\sqrt{2}} + 1+\sqrt{2}) Q_7 \]
+
+\textbf{Resolvendo a primeira malha para Q7 (obtendo a equação para Q7):}
+
+Da Equação \eqref{eq:no_1} e $Q_1=1$: $Q_2 = 1 - Q_3 = 1 - (\sqrt{5+2\sqrt{2}} + 1+\sqrt{2}) Q_7$.
+Substituindo $Q_2, Q_3, Q_4$ na Equação \eqref{eq:malha_1}: $Q_3^2 + Q_4^2 - Q_2^2 = 0$.
+Seja $A = \sqrt{5+2\sqrt{2}} + 1+\sqrt{2}$.
+\[ (A Q_7)^2 + (5+2\sqrt{2})Q_7^2 - (1 - A Q_7)^2 = 0 \]
+\[ A^2 Q_7^2 + (5+2\sqrt{2})Q_7^2 - (1 - 2AQ_7 + A^2 Q_7^2) = 0 \]
+\[ A^2 Q_7^2 + (5+2\sqrt{2})Q_7^2 - 1 + 2AQ_7 - A^2 Q_7^2 = 0 \]
+Resultando em:
+\[ (5+2\sqrt{2})Q_7^2 + 2AQ_7 - 1 = 0 \]
+Substituindo $A$:
+\[ (5+2\sqrt{2})Q_7^2 + 2(\sqrt{5+2\sqrt{2}} + 1+\sqrt{2})Q_7 - 1 = 0 \]
+
+A equação final para $Q_7$ (obtida da Malha 1) é:
+\[ \boxed{(5+2\sqrt{2})Q_7^2 + 2(1+\sqrt{2} + \sqrt{5+2\sqrt{2}})Q_7 - 1 = 0} \]
+
+\\
+O código em Python que implementa a teoria explicada nesta parte do relatório: \ref{code:primeira_parte}
+\section*{Segunda parte:}
+Para a segunda parte da questão, vamos utilizar o Método de Muller para encontrar a raiz de Q7 e, a partir dele, achar todos os outros valores das variáveis de escoamento. 
+O Método de Muller é um algoritmo de busca de raízes para encontrar a raiz de uma equação da forma f(x) = 0. Ele inicia com três suposições iniciais da raiz e, posteriormente, constrói uma parábola através desses três pontos, considerando a interseção do eixo x com a parábola como a próxima aproximação. Esse processo continua até que uma raiz com o nível de precisão desejado seja encontrada.
+
+Como o algoritmo funciona:
+\begin{itemize}
+    \item Suponha quaisquer três raízes iniciais distintas da função, sejam elas \(x_0\), \(x_1\) e \(x_2\).
+    \item Agora, desenhe um polinômio de segundo grau, ou seja, uma parábola, através dos valores da função \(f(x)\) para estes pontos: \(x_0\), \(x_1\) e \(x_2\).
+
+    \item A equação da parábola, \(p(x)\), através destes pontos é a seguinte:
+    \[ p(x) = c + b(x - x_2) + a(x - x_2)^2 \]
+    onde \(a\), \(b\) e \(c\) são constantes.
+    \item Depois de desenhar a parábola, encontre a interseção desta parábola com o eixo x, digamos \(x_3\).
+
+    \item Encontrando a interseção da parábola com o eixo x, i.e., \(x_3\):
+    \item Para encontrar \(x_3\), a raiz de \(p(x)\), onde \(p(x) = c + b(x - x_2) + a(x - x_2)^2\), tal que \(p(x_3) = c + b(x_3 - x_2) + a(x_3 - x_2)^2 = 0\), aplique a fórmula quadrática a \(p(x)\). Como haverá duas raízes, temos que pegar aquela que está mais próxima de \(x_2\). Para evitar erros de arredondamento devido à subtração de números próximos e iguais, use a seguinte equação:
+    \[ x_3 - x_2 = \frac{-2c}{b \pm \sqrt{b^2 - 4ac}} \]
+    \item Agora, como a raiz de \(p(x)\) tem que estar mais próxima de \(x_2\), temos que pegar aquele valor que tem um denominador maior dentre os dois valores possíveis da equação acima.
+
+    \item Para encontrar \(a\), \(b\) e \(c\) para a equação acima, substitua \(x\) em \(p(x)\) por \(x_0\), \(x_1\) e \(x_2\), e sejam esses valores \(p(x_0)\), \(p(x_1)\) e \(p(x_2)\), que são os seguintes:
+    \begin{align*}
+    p(x_0) &= c + b(x_0 - x_2) + a(x_0 - x_2)^2 = f(x_0) \\
+    p(x_1) &= c + b(x_1 - x_2) + a(x_1 - x_2)^2 = f(x_1) \\
+    p(x_2) &= c + b(x_2 - x_2) + a(x_2 - x_2)^2 = c = f(x_2)
+    \end{align*}
+    \item Então, temos três equações e três variáveis - \(a\), \(b\), \(c\). Depois de resolvê-las para encontrar os valores dessas variáveis, obtemos os seguintes valores de \(a\), \(b\) e \(c\):
+    \begin{align*}
+    c &= p(x_2) = f(x_2) \\
+    b &= \frac{d_2 (h_1)^2 - d_1 (h_2)^2}{h_1 h_2 (h_1 - h_2)} \\
+    a &= \frac{d_1 h_2 - d_2 h_1}{h_1 h_2 (h_1 - h_2)}
+    \end{align*}
+    onde,
+    \begin{align*}
+    d_1 &= p(x_0) - p(x_2) = f(x_0) - f(x_2) \\
+    d_2 &= p(x_1) - p(x_2) = f(x_1) - f(x_2) \\
+    h_1 &= x_0 - x_2 \\
+    h_2 &= x_1 - x_2
+    \end{align*}
+    \item Agora, coloque esses valores na expressão para \(x_3 - x_2\), e obtenha \(x_3\).
+    É assim que a raiz de \(p(x) = x_3\) é obtida.
+\end{itemize}
+O código em Python que implementa a teoria explicada nesta parte do relatório: \ref{code:segunda_parte}
+\\
+O código em Python que retorna os resultados:\ref{code:resultados}
+\\
+Todos os código implementados podem ser encontrados na pasta MetodosPython dentro do arquivo na extensão .zip enviado junto com esse relatório.
+\\
+\textbf{Bibliografia da explicação teórica do método de Muller:} \hypertarget{Bibliografia do método de Muller}
+\\{https://www.geeksforgeeks.org/program-muller-method}
+
+\section*{Códigos}
+
+\begin{minted}[frame=single,framesep=10pt,linenos,fontsize=\small]{python} 
+import numpy as np
+import matplotlib.pyplot as plt
+import math
+import cmath
+\end{minted}
+
+
+\begin{codelisting}[H]
+\begin{minted}[frame=single,framesep=10pt,linenos,fontsize=\small]{python} 
+def funcao_escoamento(Q7):
+    if not isinstance(Q7, complex) and Q7 < 0:
+        return float('inf')
+    try:
+        sqrt2 = cmath.sqrt(2)
+        Q6 = sqrt2 * Q7
+        Q5 = (1 + sqrt2) * Q7
+        Q4 = cmath.sqrt(5 + 2 * sqrt2) * Q7
+        Q3 = (1 + sqrt2 + cmath.sqrt(5 + 2 * sqrt2)) * Q7
+        Q2 = cmath.sqrt(Q3**2 + Q4**2)
+        return Q2 + Q3 - 1
+    except (ValueError, TypeError):
+        return complex(float('inf'), float('inf'))
+\end{minted}
+\caption{Primeira parte do código}
+\label{code:primeira_parte}
+\end{codelisting}
+
+\begin{codelisting}[H]
+\begin{minted}[frame=single,framesep=10pt,linenos,fontsize=\small]{python} 
+def metodo_muller(x0, x1, x2, tol=1e-6, max_iter=100):
+    p0, p1, p2 = x0, x1, x2
+
+    for i in range(max_iter):
+        f0,f1,f2=funcao_escoamento(p0),funcao_escoamento(p1),funcao_escoamento(p2)
+        h1 = p1 - p0
+        h2 = p2 - p1
+        if h1 == 0 or h2 == 0:
+            print("Pontos de chute iniciais idênticos")
+            return None
+        delta1 = (f1 - f0) / h1
+        delta2 = (f2 - f1) / h2
+        if (h2 + h1) == 0:
+            print("Divisão por zero ao calcular 'a'.")
+            return None
+        a = (delta2 - delta1) / (h2 + h1)
+        b = a * h2 + delta2
+        c = f2
+        
+        discriminante = (b**2 - 4*a*c)
+        
+        if abs(b+cmath.sqrt(discriminante))>abs(b-cmath.sqrt(discriminante)):
+        denominador=b+cmath.sqrt(discriminante)
+        else:
+            denominador = b - cmath.sqrt(discriminante)
+            
+        if denominador == 0:
+            p3 = p2
+        else:
+            p3 = p2 - (2 * c) / denominador
+        
+        if abs(p3 - p2) < tol:
+            return p3.real
+
+        p0, p1, p2 = p1, p2, p3
+
+    print("O método não convergiu")
+    return p2.real
+\end{minted}
+\caption{Segunda parte do código}
+\label{code:segunda_parte}
+\end{codelisting}
+
+\begin{codelisting}[H]
+\begin{minted}[frame=single,framesep=10pt,linenos,fontsize=\small]{python}
+
+Q7_chute_1 = 0.1
+Q7_chute_2 = 0.15
+Q7_chute_3 = 0.2
+
+Q7_result=metodo_muller(Q7_chute_1,Q7_chute_2, Q7_chute_3,tol=1e-6,max_iter=100)
+\end{minted}
+\begin{minted}[frame=single,framesep=10pt,linenos,fontsize=\small]{python}
+Q1 = 1.0000
+Q6_result = math.sqrt(2) * Q7_result
+Q5_result = (1 + math.sqrt(2)) * Q7_result
+Q8_result = Q5_result
+Q4_result = math.sqrt(5 + 2 * math.sqrt(2)) * Q7_result
+Q3_result = Q4_result + Q5_result
+Q9_result = Q3_result
+Q2_result = math.sqrt(Q3_result**2 + Q4_result**2)
+Q1_result = Q2_result + Q3_result
+Q10_result = Q1_result
+
+print(f'Q1 = {Q1}')
+print(f'Q2 = {Q2_result}')
+print(f'Q3 = {Q3_result}')
+print(f'Q4 = {Q4_result}')
+print(f'Q5 = {Q5_result}')
+print(f'Q6 = {Q6_result}')
+print(f'Q7 = {Q7_result}')
+print(f'Q8 = {Q8_result}')
+print(f'Q9 = {Q9_result}')
+print(f'Q10 = {Q10_result}')
+
+\end{minted}
+\caption{Resultados}
+\label{code:resultados}
+\end{codelisting}
+
+\end{document}
